@@ -1,0 +1,56 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid()) // CUID on parempi kuin numero-ID (esim. 1, 2, 3), koska se on uniikki ja vaikeampi arvata.
+  email         String    @unique
+  name          String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  
+  // Relaatio
+  bookings      Booking[] 
+}
+
+model Resource {
+  id          String    @id @default(cuid())
+  name        String    // Esim. "Neukkari A" tai "Työpiste 4"
+  description String?
+  capacity    Int       @default(1)
+  pricePerHour Int      @default(0) // Hinta sentteinä (välttää liukulukuongelmat valuutoissa)
+  
+  // Relaatio: Yhdestä resurssista voi olla monta varausta eri aikoina
+  bookings    Booking[]
+}
+
+model Booking {
+  id          String    @id @default(cuid())
+  startTime   DateTime
+  endTime     DateTime
+  notes       String?   // Lisätietoja varauksesta
+  createdAt   DateTime  @default(now())
+
+  // Foreign Keys 
+  userId      String
+  resourceId  String
+
+  // Relaatioiden kytkentä
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource    Resource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resourceId])
+}

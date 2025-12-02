@@ -60,7 +60,7 @@ model Booking {
 
 1. Clone the repository
 
-    git clone [https://github.com/nikilep97/deskbooker.git]
+    git clone [https://github.com/nikilep97/DeskBooker.git]
     cd deskbooker
 
 2. Install dependencies
